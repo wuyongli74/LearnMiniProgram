@@ -1,11 +1,27 @@
 <!--1.小程序的数据绑定：{{}} -> Mustache -->
-<text>hello {{name}}</text>
-<view>我的年龄：{{age}}</view>
+<!-- 1.展示轮播图 -->
+<w-swiper list="{{banners}}" />
 
-<!-- 2.列表展示 -->
-<view wx:for="{{student}}" wx:key="id">{{item.name}}-{{item.age}}</view>
+<!-- 2.推荐数据展示 -->
+<w-recommend recommends="{{recommends}}" bind:imageLoad="handelImageLoad" />
 
-<!-- 3.事件监听改变data -->
-<view>当前计数：{{counter}}</view>
-<button size="mini" bindtap="handleBtnClick">+</button>
-<button size="mini" bindtap="handleSubtraction">-</button>
+<!-- 3.展示本周流行 -->
+<w-popular />
+
+
+<!-- 4.tab-control -->
+<w-tab-control class="{{isTabFixed ? 'fixed': ''}}" id="tab-control" titles="{{titles}}" bind:tabclick="handleTabClick" />
+<w-tab-control titles="{{titles}}" wx:if="{{isTabFixed}}" />
+<w-popular />
+<w-popular />
+<w-popular />
+<!-- 5.展示商品数据 -->
+<view class="goods">
+    <block wx:for="{{goods[currentType].list}}">
+        <view>{{item.title}}</view>
+    </block>
+</view>
+
+<!-- 6.返回顶部 -->
+<!-- hidden：hidden属性对于自定义组件是无效的 -->
+<w-back-top wx:if="{{showBackTop}}"></w-back-top>
