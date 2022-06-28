@@ -96,6 +96,7 @@
   /* 当一个元素设置为flex，其子元素会自动成为block元素 */
   display: flex;
   margin-bottom: 20rpx;
+  font-size: 35rpx;
 }
 
 .musicItem image {
@@ -114,4 +115,8 @@
 .musicItem .musicName {
   height: 100rpx;
   line-height: 100rpx;
+  max-width: 400rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

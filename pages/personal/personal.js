@@ -1,10 +1,17 @@
 // pages/personal/personal.js
 import request from '../../utils/request'
+
+let startY = 0 // 手指起始的坐标
+let moveY = 0 // 手指移动的坐标
+let moveDistance = 0 // 手指移动的距离
+
 Page({
   /**
    * 页面的初始数据
    */
   data: {
+    coverTransform: 'translateY(0)',
+    coverTransition: '',
     userInfo: {}, // 用户信息
     recentPlayList: [], // 用户播放记录
   },
@@ -17,7 +24,7 @@ Page({
     let userInfo = wx.getStorageSync('userInfo')
     if (userInfo) {
       // 更新userInfo的状态
-      this.setDate({
+      this.setData({
         userInfo: JSON.parse(userInfo),
       })
       // 获取用户播放记录
@@ -28,9 +35,47 @@ Page({
   // 获取用户播放记录的功能函数
   async getUserRecentPlayList(userId) {
     let recentPlayListData = await request('/user/record', { uid: userId, type: 0 })
-    this.setDate({
-      recentPlayList: recentPlayListData.allData.splice(0, 10),
+    let index = 0
+    let recentPlayList = recentPlayListData.allData.splice(0, 10).map(item => {
+      item.id = index++
+      return item
     })
+    this.setData({
+      recentPlayList,
+    })
+  },
+
+  handleTouchStart(event) {
+    this.setData({
+      coverTransition: '',
+    })
+    // 获取手指起始坐标
+    startY = event.touches[0].clientY
+    console.log(event, 'handleTouchStart')
+  },
+  handleTouchMove(event) {
+    moveY = event.touches[0].clientY
+    moveDistance = moveY - startY
+
+    if (moveDistance <= 0) {
+      return
+    }
+    if (moveDistance >= 80) {
+      moveDistance = 80
+    }
+
+    // 动态更新coverTransform的状态值
+    this.setData({
+      coverTransform: `translateY(${moveDistance}rpx)`,
+    })
+    console.log('handleTouchMove', event)
+  },
+  handleTouchEnd() {
+    this.setData({
+      coverTransform: `translateY(0rpx)`,
+      coverTransition: `transform 1s linear`,
+    })
+    console.log('handleTouchEnd')
   },
 
   // 跳转至登录login页面的回调

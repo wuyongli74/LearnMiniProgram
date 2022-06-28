@@ -79,6 +79,7 @@ Page({
     let result = await request('/login/cellphone', {
       phone,
       password,
+      isLogin: true,
     })
     if (result.code == 200) {
       wx.reLaunch({
