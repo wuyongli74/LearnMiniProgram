@@ -8,7 +8,8 @@ Page({
     navId: '', // 导航标识
     videoGroupList: [], // 导航标签数据
     videoList: [], // 视频列表数据
-    videoId: '', // 视频id标识
+    videoId: [], // 视频id标识
+    videoUrl: [], // 视频地址
     videoUpdateTime: [], // 记录video播放时长
     isTriggered: false, // 标识下拉刷新是否被触发
   },
@@ -40,6 +41,7 @@ Page({
       return
     }
     let videoListData = await request('/video/group', { id: navId })
+
     // 关闭消息提示框
     wx.hideLoading()
 
@@ -48,10 +50,23 @@ Page({
       item.id = index++
       return item
     })
-
+    let vid = videoList.map(item => item.data).map(item => item.vid)
     this.setData({
       videoList,
+      videoId: vid,
       isTriggered: false, // 关闭下拉刷新
+    })
+
+    this.getVideoUrl(this.data.videoId[0])
+  },
+
+  // 获取视频地址
+  async getVideoUrl(videoId) {
+    let videoUrl = await request('/video/url', { id: videoId })
+
+    let videoUrlData = videoUrl.urls[0].url
+    this.setData({
+      videoUrl: videoUrlData,
     })
   },
 
@@ -65,6 +80,7 @@ Page({
       navId: navId >>> 0,
       // navId: navId * 1,
       videoList: [],
+      videoUrl: [],
     })
 
     // 显示正在加载
@@ -74,6 +90,7 @@ Page({
 
     // 动态获取当前导航对应的视频数据
     this.getVideoList(this.data.navId)
+    this.getVideoUrl(this.data.videoId[0])
   },
 
   // 点击播放|继续播放的回调
