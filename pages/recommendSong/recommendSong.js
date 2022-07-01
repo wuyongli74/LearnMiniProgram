@@ -1,3 +1,4 @@
+import PubSub from 'pubsub-js'
 import request from '../../utils/request'
 Page({
   /**
@@ -6,7 +7,8 @@ Page({
   data: {
     day: '', // 天
     month: '', // 月
-    recommendList: [],
+    recommendList: [], // 每日推荐列表数据
+    index: 0, // 点击音乐的下标
   },
 
   /**
@@ -34,6 +36,29 @@ Page({
     })
     // 获取每日推荐歌曲
     this.getRecommendList()
+
+    // 订阅来自songDetail页面发布的消息
+    PubSub.subscribe('switchType', (msg, type) => {
+      let { recommendList, index } = this.data
+      if (type === 'pre') {
+        // 上一首
+        index === 0 && (index = recommendList.length)
+        index -= 1
+      } else {
+        // 下一首
+        index === recommendList.length - 1 && (index = -1)
+        index += 1
+      }
+
+      // 更新下标
+      this.setData({
+        index,
+      })
+
+      let musicId = recommendList[index].id
+      // 将musicId回传给songDetail页面
+      PubSub.publish('musicId', musicId)
+    })
   },
 
   // 获取用户每日推荐歌曲
@@ -46,8 +71,10 @@ Page({
 
   // 跳转至songDetail页面
   toSongDetail(event) {
-    let song = event.currentTarget.dataset.song
-
+    let { song, index } = event.currentTarget.dataset
+    this.setData({
+      index,
+    })
     // 路由跳转传参：query参数
     wx.navigateTo({
       // 不能直接将song对象作为参数传递，长度过长，会被自动截取掉
@@ -55,6 +82,7 @@ Page({
       url: '/pages/songDetail/songDetail?musicId=' + song.id,
     })
   },
+
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
